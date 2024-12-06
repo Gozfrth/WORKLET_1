@@ -76,13 +76,10 @@ def extract_module_parameters(file_path):
 
     count = 0
 
-    # Iterate over each module in the configuration (cfg)
     for module, parameters in cfg.items():
-        # Skip specific modules
         if module in ['module_enable_status', 'hardware']:
             continue
 
-        # Make sure that parameters is not None
         if parameters is not None:
             for key, value in parameters.items():
                 if isinstance(value, (int, float)):
@@ -124,19 +121,21 @@ def isp_pipeline(file_name):
     output = cv2.cvtColor(data['output'], cv2.COLOR_RGB2BGR)
     cv2.imwrite(output_path, output)
 
-    return data
-
+    return output_path
 
 def cmaes_iter(file_name):
     time.sleep(1)
 
     # ISP PIPELINE STEP HERE
 
-    processed_image = isp_pipeline(file_name)
+    processed_image_path = isp_pipeline(file_name)
 
+    model = YOLO("yolo11x.pt")
+    
+    results = model(processed_image_path)
+    results[0].show()
     # MODEL HERE
     # eval_metrics = model_eval(processed_image)
-
 
     return np.random.rand() # should return eval_metrics
 
@@ -172,6 +171,7 @@ if __name__ == "__main__":
             print(f"Generation {generation}: value={value} params={x}")
         
         optimizer.tell(solutions)
+
 
 # import numpy as np
 # from cmaes import CMA, get_warm_start_mgd
